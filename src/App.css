@@ -66,3 +66,10 @@
         opacity: 0;
     }
 }
+
+.formsContainer {
+    display: flex;
+    justify-content: space-between; /* Espacio entre los formularios */
+    gap: 30px; /* Espacio entre los formularios */
+    margin-top: 20px;
+}

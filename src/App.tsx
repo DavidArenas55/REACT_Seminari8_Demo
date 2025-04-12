@@ -5,6 +5,7 @@ import Form from './components/Form';
 import UsersList from './components/UsersList';
 import { fetchUsers, LogIn } from './services/usersService';
 import Login from './components/Login';
+import UpdateUser from './components/Update'; // Asegúrate de importar
 
 interface AppState {
     currentUser: User | null;
@@ -24,6 +25,8 @@ function App() {
     const [newUsersNumber, setNewUsersNumber] = useState<AppState['newUsersNumber']>(0);
     const [isLoggedIn, setIsLoggedIn] = useState<AppState['isLoggedIn']>(false);
     const [currentUser, setCurrentUser] = useState<AppState['currentUser']>(null);
+    const [userToEdit, setUserToEdit] = useState<User | null>(null);
+    
 
     const [uiState, setUiState] = useState<UIState>({
         isDarkMode: false,
@@ -97,33 +100,45 @@ function App() {
 
     return (
         <div className="App" ref={divRef}>
-            {/* Notification Popup */}
-            {uiState.showNotification && (
-                <div className={`notification ${uiState.isDarkMode ? 'dark' : 'light'}`}>
-                    User <strong>{uiState.newUserName}</strong> has been created successfully!
-                </div>
-            )}
-
-            <button onClick={toggleDarkMode} className="toggleButton">
-                {uiState.isDarkMode ? 'Light Mode' : 'Dark Mode'}
-            </button>
-
-            <div className="content">
-                {!isLoggedIn ? (
-                    <Login
-                        onLogin={({ email, password }) => handleLogin(email, password)}
-                    />
-                ) : (
-                    <>
-                        <h2>Bienvenido, {currentUser?.name}!</h2>
-                        <UsersList users={users} />
-                        <p>New users: {newUsersNumber}</p>
-                        <Form onNewUser={handleNewUser} />
-                    </>
-                )}
+          {/* Notification Popup */}
+          {uiState.showNotification && (
+            <div className={`notification ${uiState.isDarkMode ? 'dark' : 'light'}`}>
+              User <strong>{uiState.newUserName}</strong> has been created successfully!
             </div>
+          )}
+      
+          <button onClick={toggleDarkMode} className="toggleButton">
+            {uiState.isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+      
+          <div className="content">
+            {!isLoggedIn ? (
+              <Login onLogin={({ email, password }) => handleLogin(email, password)} />
+            ) : (
+              <>
+                <h2>Bienvenido, {currentUser?.name}!</h2>
+                <UsersList users={users} onUserSelect={setUserToEdit} />
+                <div className="formsContainer">
+                  {userToEdit && (
+                    <UpdateUser 
+                      user={userToEdit} 
+                      onUserUpdated={() => {
+                        setNewUsersNumber((n) => n + 1); // Refrescamos la lista después de la edición
+                        setUserToEdit(null); // Cerramos el formulario de edición
+                      }} 
+                    />
+                  )}
+      
+                  <Form onNewUser={handleNewUser} />
+                </div>
+      
+                <p>New users: {newUsersNumber}</p>
+              </>
+            )}
+          </div>
         </div>
-    );
-}
+      );
+    }
+      
 
 export default App;
